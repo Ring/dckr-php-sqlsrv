@@ -1,0 +1,27 @@
+FROM ubuntu:16.04
+
+MAINTAINER "Andrew Simonov <simonov@scand.com>"
+
+RUN apt-get update && apt-get install -y --no-install-recommends nano curl software-properties-common
+
+COPY ./drivers/php_pdo_sqlsrv_7_nts.so /usr/lib/php/20151012/php_pdo_sqlsrv_7_nts.so
+COPY ./drivers/php_sqlsrv_7_nts.so /usr/lib/php/20151012/php_sqlsrv_7_nts.so
+COPY ./msphpsql.ini /etc/php/7.0/mods-available/msphpsql.ini
+
+RUN ln -s /etc/php/7.0/mods-available/msphpsql.ini /etc/php/7.0/fpm/conf.d/20-msphpsql.ini \
+    && ln -s /etc/php/7.0/mods-available/msphpsql.ini /etc/php/7.0/cli/conf.d/20-msphpsql.ini
+
+RUN LC_ALL=C.UTF-8 add-apt-repository ppa:ondrej/php \
+    && apt-get update \
+    && apt-get install -y php7.0-fpm php7.0-bz2 php7.0-gd php7.0-intl php7.0-mbstring php7.0-odbc php7.0-xml \
+    && sed -i "/listen = .*/c\listen = [::]:9000" /etc/php/7.0/fpm/pool.d/www.conf \
+    && sed -i "/;access.log = .*/c\access.log = /proc/self/fd/2" /etc/php/7.0/fpm/pool.d/www.conf \
+    && sed -i "/;clear_env = .*/c\clear_env = no" /etc/php/7.0/fpm/pool.d/www.conf \
+    && sed -i "/;catch_workers_output = .*/c\catch_workers_output = yes" /etc/php/7.0/fpm/pool.d/www.conf \
+    && sed -i "/pid = .*/c\;pid = /run/php/php7.0-fpm.pid" /etc/php/7.0/fpm/php-fpm.conf \
+    && sed -i "/;daemonize = .*/c\daemonize = no" /etc/php/7.0/fpm/php-fpm.conf \
+    && sed -i "/error_log = .*/c\error_log = /proc/self/fd/2" /etc/php/7.0/fpm/php-fpm.conf
+
+CMD ["php-fpm7.0"]
+
+EXPOSE 9000
