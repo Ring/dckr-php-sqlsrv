@@ -27,6 +27,12 @@ RUN echo "deb [arch=amd64] http://apt-mo.trafficmanager.net/repos/mssql-ubuntu-x
     && apt-get update \
     && ACCEPT_EULA=Y apt-get install -y unixodbc-dev-utf16 msodbcsql
 
+#hack for msphpsql driver
+#see: https://github.com/Microsoft/msphpsql/issues/161#issuecomment-254046975
+RUN apt-get install -y locales \
+    && echo "en_US.UTF-8 UTF-8" > /etc/locale.gen
+    && locale-gen
+
 CMD ["php-fpm7.0"]
 
 EXPOSE 9000
