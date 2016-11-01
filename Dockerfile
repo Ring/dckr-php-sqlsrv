@@ -5,10 +5,8 @@ MAINTAINER "Andrew Simonov <simonov@scand.com>"
 RUN apt-get update && apt-get install -y --no-install-recommends nano curl software-properties-common
 
 RUN LC_ALL=C.UTF-8 add-apt-repository ppa:ondrej/php \
-    && echo "deb [arch=amd64] http://apt-mo.trafficmanager.net/repos/mssql-ubuntu-xenial-release/ xenial main" > /etc/apt/sources.list.d/mssqlpreview.list \
-    && apt-key adv --keyserver apt-mo.trafficmanager.net --recv-keys 417A0893 \
     && apt-get update \
-    && ACCEPT_EULA=Y apt-get install -y php7.0-fpm php7.0-bz2 php7.0-gd php7.0-intl php7.0-mbstring php7.0-odbc php7.0-xml unixodbc-dev-utf16 msodbcsql \
+    && apt-get install -y php7.0-fpm php7.0-bz2 php7.0-gd php7.0-intl php7.0-mbstring php7.0-odbc php7.0-xml \
     && sed -i "/listen = .*/c\listen = [::]:9000" /etc/php/7.0/fpm/pool.d/www.conf \
     && sed -i "/;access.log = .*/c\access.log = /proc/self/fd/2" /etc/php/7.0/fpm/pool.d/www.conf \
     && sed -i "/;clear_env = .*/c\clear_env = no" /etc/php/7.0/fpm/pool.d/www.conf \
@@ -23,6 +21,11 @@ COPY ./msphpsql.ini /etc/php/7.0/mods-available/msphpsql.ini
 
 RUN ln -s /etc/php/7.0/mods-available/msphpsql.ini /etc/php/7.0/fpm/conf.d/20-msphpsql.ini \
     && ln -s /etc/php/7.0/mods-available/msphpsql.ini /etc/php/7.0/cli/conf.d/20-msphpsql.ini
+
+RUN echo "deb [arch=amd64] http://apt-mo.trafficmanager.net/repos/mssql-ubuntu-xenial-release/ xenial main" > /etc/apt/sources.list.d/mssqlpreview.list \
+    && apt-key adv --keyserver apt-mo.trafficmanager.net --recv-keys 417A0893 \
+    && apt-get update \
+    && ACCEPT_EULA=Y apt-get install -y unixodbc-dev-utf16 msodbcsql
 
 CMD ["php-fpm7.0"]
 
