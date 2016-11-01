@@ -22,6 +22,11 @@ COPY ./msphpsql.ini /etc/php/7.0/mods-available/msphpsql.ini
 RUN ln -s /etc/php/7.0/mods-available/msphpsql.ini /etc/php/7.0/fpm/conf.d/20-msphpsql.ini \
     && ln -s /etc/php/7.0/mods-available/msphpsql.ini /etc/php/7.0/cli/conf.d/20-msphpsql.ini
 
+RUN echo "deb [arch=amd64] http://apt-mo.trafficmanager.net/repos/mssql-ubuntu-xenial-release/ xenial main" > /etc/apt/sources.list.d/mssqlpreview.list \
+    && apt-key adv --keyserver apt-mo.trafficmanager.net --recv-keys 417A0893 \
+    && apt-get update \
+    && ACCEPT_EULA=Y apt-get install unixodbc-dev-utf16 msodbcsql
+
 CMD ["php-fpm7.0"]
 
 EXPOSE 9000
